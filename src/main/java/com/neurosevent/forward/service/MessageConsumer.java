@@ -15,6 +15,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -32,6 +33,9 @@ public class MessageConsumer {
 		this.kafkaProperties = kafkaProperties;
 	}
 
+	@Autowired
+	private MessageSender messageSender;
+	
 	@PostConstruct
 	public SseEmitter consume() {
 		log.info("consume records from Kafka all topics");
@@ -57,6 +61,7 @@ public class MessageConsumer {
 						for (ConsumerRecord<String, String> record : records) {
 							emitter.send(record.value());
 							log.info(record.value());
+							messageSender.sendToSubscriber(record.value());
 						}
 						emitter.send(SseEmitter.event().comment(""));
 					} catch (Exception ex) {
