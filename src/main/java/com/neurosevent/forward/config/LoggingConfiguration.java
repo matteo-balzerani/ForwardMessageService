@@ -18,15 +18,15 @@ import ch.qos.logback.classic.LoggerContext;
 @Configuration
 public class LoggingConfiguration {
 
-//    public LoggingConfiguration(@Value("${spring.application.name}") String appName,
-//                                @Value("${server.port}") String serverPort,
-//                                ObjectMapper mapper) throws JsonProcessingException {
-//
-//        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-//
-//        Map<String, String> map = new HashMap<>();
-//        map.put("app_name", appName);
-//        map.put("app_port", serverPort);
-//        String customFields = mapper.writeValueAsString(map);
-//    }
+    public LoggingConfiguration(@Value("${spring.application.name}") String appName,
+                                @Value("${server.port}") String serverPort,
+                                ObjectMapper mapper) throws JsonProcessingException {
+
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+        Map<String, String> map = new HashMap<>();
+        map.put("app_name", appName);
+        map.put("app_port", serverPort);
+        String customFields = mapper.writeValueAsString(map);
+    }
 }
