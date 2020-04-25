@@ -1,0 +1,28 @@
+### Maven ###
+/log/
+/target/
+HELP.md
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### VS Code ###
+.vscode/
+
+### Package Files ###
+*.jar
+*.war
+*.ear
+*.db
+
+### Logs ###
+*.log*
