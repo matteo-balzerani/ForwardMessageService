@@ -23,7 +23,11 @@ public class Message implements Serializable {
 	@NotNull
 	@Field("payload")
 	private String payload;
-
+	
+	@NotNull
+	@Field("subscriber")
+	private String subscriberUrl;
+	
 	@CreatedDate
 	@Field("created_date")
 	@JsonIgnore
@@ -65,4 +69,13 @@ public class Message implements Serializable {
 		this.lastSentDate = lastSentDate;
 	}
 
+	public String getSubscriberUrl() {
+		return subscriberUrl;
+	}
+
+	public void setSubscriberUrl(String subscriberUrl) {
+		this.subscriberUrl = subscriberUrl;
+	}
+
+	
 }

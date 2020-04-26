@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -16,10 +17,12 @@ import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.neurosevent.forward.config.KafkaProperties;
 import com.neurosevent.forward.dto.MessageConsumedDTO;
+import com.neurosevent.forward.repository.SubscriberRepo;
 
 @Service
 public class MessageConsumer {
@@ -29,7 +32,6 @@ public class MessageConsumer {
 	private final int TIMEOUT = 5;
 	private final int MAX_TRY = 5;
 
-
 	private final KafkaProperties kafkaProperties;
 	private ExecutorService sseExecutorService = Executors.newCachedThreadPool();
 
@@ -37,11 +39,17 @@ public class MessageConsumer {
 		this.kafkaProperties = kafkaProperties;
 	}
 
+	@Value("${mocked_sub.url}")
+	private String subUrl;
+
 	@Autowired
 	private MessageSender messageSender;
 
 	@Autowired
 	private MessageStorer messageStorer;
+
+	@Autowired
+	private SubscriberRepo subscriberRepo;
 
 	@PostConstruct
 	public boolean consume() {
@@ -64,9 +72,11 @@ public class MessageConsumer {
 						ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(TIMEOUT));
 						for (ConsumerRecord<String, String> record : records) {
 							MessageConsumedDTO mess = new MessageConsumedDTO(record.topic(), record.value());
-							if (!messageSender.sendToSubscriber(mess)) {
-								messageStorer.save(mess);
-							}
+							retrieveSubscriber(mess.getTopic()).forEach(url -> {
+								if (!messageSender.sendToSubscriber(mess, url)) {
+									messageStorer.save(mess, url);
+								}
+							});
 						}
 						numOfTry = 0;
 					} catch (Exception ex) {
@@ -90,5 +100,14 @@ public class MessageConsumer {
 		List<String> listTopics = new ArrayList<String>(topics.keySet());
 		listTopics.removeIf(x -> x.startsWith("__"));
 		return listTopics;
+	}
+
+	private List<String> retrieveSubscriber(String topic) {
+		List<String> listUrls = subscriberRepo.findByTopic(topic).stream().map(sub -> sub.getUrl())
+				.collect(Collectors.toList());
+		// check for dev
+		if (listUrls.isEmpty())
+			listUrls.add(subUrl);
+		return listUrls;
 	}
 }

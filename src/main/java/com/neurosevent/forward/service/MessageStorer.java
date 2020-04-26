@@ -17,11 +17,12 @@ public class MessageStorer {
 	@Autowired
 	private MessageRepo messageRepo;
 
-	public Message save(MessageConsumedDTO mess) {
+	public Message save(MessageConsumedDTO mess, String url) {
 		log.info("saving {}", mess.toString());
 		Message message = new Message();
 		message.setPayload(mess.getPayload());
 		message.setTopic(mess.getTopic());
+		message.setSubscriberUrl(url);
 		return messageRepo.save(message);
 	}
 
