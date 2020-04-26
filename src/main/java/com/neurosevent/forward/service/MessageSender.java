@@ -1,51 +1,43 @@
 package com.neurosevent.forward.service;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neurosevent.forward.dto.MessageConsumedDTO;
 
 @Service
 public class MessageSender {
 
 	private final Logger log = LoggerFactory.getLogger(MessageSender.class);
 
-	public Boolean sendToSubscriber(String data) {
-//		TcpClient tcpClient = TcpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-//				.doOnConnected(connection -> {
-//					connection.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS));
-//					connection.addHandlerLast(new WriteTimeoutHandler(5000, TimeUnit.MILLISECONDS));
-//				});
-//		WebClient client = WebClient.builder()
-//				.clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient))).build();
-//
-//		Mono<String> result = client.post().uri("localhost:8080").body(BodyInserters.fromFormData("payload", data))
-//				.exchange().flatMap(clientResponse -> {
-//					if (clientResponse.statusCode().is5xxServerError()) {
-//						clientResponse.body((clientHttpResponse, context) -> {
-//							log.info("ZERO");
-//							return clientHttpResponse.getBody();
-//						});
-//						log.info("UNO");
-//						return clientResponse.bodyToMono(String.class);
-//					} else {
-//						log.info("DUE");
-//						return clientResponse.bodyToMono(String.class);
-//
-//					}
-//				});
-//
-//		return true;
-		log.debug("Starting REST Client!!!!");
+	@Autowired
+	private HttpHeaders httpHeaders;
 
+	@Autowired
+	private RestTemplate restTemplate;
+
+	@Autowired
+	private ObjectMapper objMapper;
+
+	public Boolean sendToSubscriber(MessageConsumedDTO data) {
 		try {
-			RestTemplate restTemplate = new RestTemplate();
-//			String result = restTemplate.getForObject( String.class);
-			ResponseEntity<String> resultPost= restTemplate.postForEntity("http://localhost:8089/mock", data, String.class);
+			String jsonStr = objMapper.writeValueAsString(data);
+			HttpEntity<String> request = new HttpEntity<String>(jsonStr, httpHeaders);
+			ResponseEntity<String> resultPost = restTemplate.postForEntity("http://localhost:1666/mock", request,
+					String.class);
 			log.info(resultPost.toString());
 		} catch (Exception e) {
 			log.error("error:  " + e.getMessage());
+			return false;
 		}
 		return true;
 	}

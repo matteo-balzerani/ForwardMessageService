@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.neurosevent.forward.config.KafkaProperties;
+import com.neurosevent.forward.dto.MessageConsumedDTO;
 
 @Service
 public class MessageConsumer {
@@ -37,18 +38,14 @@ public class MessageConsumer {
 	private MessageSender messageSender;
 	
 	@PostConstruct
-	public SseEmitter consume() {
+	public boolean consume() {
 		log.info("consume records from Kafka all topics");
 		Map<String, Object> consumerProps = kafkaProperties.getConsumerProps();
-
-		SseEmitter emitter = new SseEmitter(0L);
 		sseExecutorService.execute(() -> {
 			KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps);
 			List<String> listTopics;
 			try {
 				listTopics = retrieveAllTopics(consumer);
-
-				emitter.onCompletion(consumer::close);
 				consumer.subscribe(listTopics);
 				boolean exitLoop = false;
 				while (!exitLoop) {
@@ -59,25 +56,21 @@ public class MessageConsumer {
 						}
 						ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
 						for (ConsumerRecord<String, String> record : records) {
-							emitter.send(record.value());
-							log.info(record.value());
-							messageSender.sendToSubscriber(record.value());
+							MessageConsumedDTO mess= new MessageConsumedDTO(record.topic(), record.value());
+							messageSender.sendToSubscriber(mess);
 						}
-						emitter.send(SseEmitter.event().comment(""));
 					} catch (Exception ex) {
 						log.trace("Complete with error {}", ex.getMessage(), ex);
-						emitter.completeWithError(ex);
 						exitLoop = true;
 					}
 				}
 				consumer.close();
-				emitter.complete();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		});
-		return emitter;
+		return true;
 
 	}
 
