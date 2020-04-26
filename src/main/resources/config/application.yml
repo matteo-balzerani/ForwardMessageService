@@ -21,3 +21,5 @@ server:
 logging:
   level:
     ROOT: INFO
+mocked_sub:
+  url: "http://mocked_subscribed:5000/mock"

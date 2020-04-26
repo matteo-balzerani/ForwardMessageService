@@ -2,7 +2,7 @@ spring:
    application:
      name: forwarder
    profiles: 
-    active: dev
+    active: local
    jackson:
     serialization:
       indent-output: true
@@ -21,3 +21,5 @@ server:
 logging:
   level:
     ROOT: INFO
+mocked_sub:
+  url: http://localhost:1666/mock
