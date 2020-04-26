@@ -29,6 +29,10 @@ public class Message implements Serializable {
 	@JsonIgnore
 	private Instant createdDate = Instant.now();
 
+	@Field("last_sent_date")
+	@JsonIgnore
+	private Instant lastSentDate = Instant.now();
+
 	public String getTopic() {
 		return topic;
 	}
@@ -51,6 +55,14 @@ public class Message implements Serializable {
 
 	public void setCreatedDate(Instant createdDate) {
 		this.createdDate = createdDate;
+	}
+
+	public Instant getLastSentDate() {
+		return lastSentDate;
+	}
+
+	public void setLastSentDate(Instant lastSentDate) {
+		this.lastSentDate = lastSentDate;
 	}
 
 }

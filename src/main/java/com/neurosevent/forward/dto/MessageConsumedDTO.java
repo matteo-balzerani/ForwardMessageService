@@ -26,7 +26,6 @@ public class MessageConsumedDTO implements Serializable {
 	}
 
 	public MessageConsumedDTO(String topic, String payload) {
-		super();
 		this.topic = topic;
 		this.payload = payload;
 	}

@@ -15,9 +15,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * Configuration of web application with Servlet 3.0 APIs.
- */
 @Configuration
 public class WebConfigurer implements ServletContextInitializer {
 
@@ -49,10 +46,10 @@ public class WebConfigurer implements ServletContextInitializer {
 		RestTemplate restTemplate = new RestTemplate();
 		return restTemplate;
 	}
-	
+
 	@Bean
 	public ObjectMapper objectMapper() {
-		return  new ObjectMapper(); 	  
+		return new ObjectMapper();
 
 	}
 

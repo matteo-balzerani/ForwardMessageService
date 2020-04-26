@@ -2,14 +2,13 @@ spring:
    application:
      name: forwarder
    profiles: 
-    active: local
+    active: dev
    jackson:
     serialization:
       indent-output: true
    data:
     mongodb:
-      uri: mongodb://localhost:27017
-      database: unreaded
+      uri: mongodb://localhost:27017/unreaded
 kafka:
   bootstrap-servers: localhost:29092
   consumer:

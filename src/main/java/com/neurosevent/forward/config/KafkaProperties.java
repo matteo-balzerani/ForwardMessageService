@@ -11,7 +11,7 @@ import java.util.Map;
 public class KafkaProperties {
 
     private String bootStrapServers = "localhost:9092";
-
+    
     private Map<String, String> consumer = new HashMap<>();
 
     public String getBootStrapServers() {
