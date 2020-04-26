@@ -37,6 +37,9 @@ public class MessageConsumer {
 	@Autowired
 	private MessageSender messageSender;
 	
+	@Autowired
+	private MessageStorer messageStorer;
+	
 	@PostConstruct
 	public boolean consume() {
 		log.info("consume records from Kafka all topics");
@@ -57,10 +60,12 @@ public class MessageConsumer {
 						ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
 						for (ConsumerRecord<String, String> record : records) {
 							MessageConsumedDTO mess= new MessageConsumedDTO(record.topic(), record.value());
-							messageSender.sendToSubscriber(mess);
+							if(!messageSender.sendToSubscriber(mess)){
+								messageStorer.save(mess);
+							}
 						}
 					} catch (Exception ex) {
-						log.trace("Complete with error {}", ex.getMessage(), ex);
+						log.error("error {}", ex.getMessage(), ex);
 						exitLoop = true;
 					}
 				}
